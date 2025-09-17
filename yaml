@@ -1,0 +1,17 @@
+
+---
+
+## 🚀 How to Deploy
+
+1. Upload this repo to **GitHub**.  
+2. Go to [Netlify](https://www.netlify.com/) → **New site from Git**.  
+3. Connect GitHub repo.  
+4. Deploy settings:  
+   - Build command: *None*  
+   - Publish directory: `/`  
+5. Deploy → 🎉 Your site is live!
+
+---
+
+## 🔑 Treasury Wallet
+All buy button SOL transfers go to:  
