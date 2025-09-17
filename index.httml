@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>$GOOSOL - Good Vibes Token</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fredoka One', cursive;
+      background: linear-gradient(135deg, #ffcf33, #ff66c4, #33ffda, #ff914d);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      color: #fff;
+      text-align: center;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    header {
+      padding: 2rem;
+    }
+    header img.logo {
+      width: 120px;
+      border-radius: 50%;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-size: 3rem;
+      margin: 0.5rem 0;
+    }
+    .ticker {
+      font-size: 1.5rem;
+      margin: 1rem 0;
+      background: rgba(0,0,0,0.4);
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    section {
+      padding: 3rem 1rem;
+    }
+    .wallet-btn, .buy-btn {
+      background: #6a00f4;
+      border: none;
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin: 10px;
+    }
+    .wallet-btn:hover, .buy-btn:hover {
+      transform: scale(1.05);
+      background: #8a2be2;
+    }
+    .social-links a {
+      margin: 0 10px;
+      text-decoration: none;
+      font-size: 1.5rem;
+      color: white;
+    }
+    footer {
+      background: rgba(0,0,0,0.6);
+      padding: 2rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="assets/logo.png" alt="$GOOSOL Logo" class="logo">
+    <h1>$GOOSOL</h1>
+    <p>Spreading Good Vibes & Love 💛</p>
+    <div class="ticker" id="ticker">$GOOSOL Price: Loading...</div>
+    <br>
+    <button class="wallet-btn" id="connectWallet">Connect Phantom Wallet</button>
+    <button class="buy-btn" id="buyToken">Buy $GOOSOL</button>
+  </header>
+
+  <section id="mission">
+    <h2>Our Mission</h2>
+    <p>
+      $GOOSOL exists to spread love, good vibes, and positivity.  
+      We’re giving back, connecting strangers, and building community through fun, memes, and generosity. 🌸✨
+    </p>
+  </section>
+
+  <section id="media">
+    <h2>Our Artwork</h2>
+    <img src="assets/artwork.gif" alt="GOOSOL GIF" style="max-width:80%; border-radius:12px;">
+    <br><br>
+    <img src="assets/banner.png" alt="GOOSOL Banner" style="max-width:90%; border-radius:12px;">
+  </section>
+
+  <section id="links">
+    <h2>Join the Movement</h2>
+    <div class="social-links">
+      <a href="https://t.me/DEEGENKINGCRYPTOFAM" target="_blank">Telegram</a>
+      <a href="https://discord.gg/XgXNqyt7" target="_blank">Discord</a>
+      <a href="https://www.behance.net/gallery/202372715/DOGEMOB-The-Next-Rising-Memecoin" target="_blank">Pump.fun Coin</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 $GOOSOL - Built with love & memes 💚</p>
+  </footer>
+
+  <!-- Solana + Phantom Wallet Adapter -->
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+  <script>
+    const tickerElement = document.getElementById("ticker");
+    let provider, publicKey;
+
+    async function fetchPrice() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+        const data = await res.json();
+        tickerElement.innerText = `$GOOSOL Price: ${(data.solana.usd * 0.0001).toFixed(6)} USD`;
+      } catch (err) {
+        tickerElement.innerText = "Price unavailable";
+      }
+    }
+    fetchPrice();
+    setInterval(fetchPrice, 30000);
+
+    const connectWalletBtn = document.getElementById("connectWallet");
+    connectWalletBtn.addEventListener("click", async () => {
+      try {
+        provider = window.solana;
+        if (provider?.isPhantom) {
+          const resp = await provider.connect();
+          publicKey = resp.publicKey.toString();
+          alert("Wallet connected: " + publicKey);
+        } else {
+          alert("Phantom Wallet not found. Please install it!");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    const buyBtn = document.getElementById("buyToken");
+    buyBtn.addEventListener("click", async () => {
+      if (!publicKey) {
+        alert("Please connect Phantom first!");
+        return;
+      }
+      try {
+        const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
+        const transaction = new solanaWeb3.Transaction();
+
+        const recipient = new solanaWeb3.PublicKey("DzS8FKhRYD69NiiqePBRVwhgkvd82aRywwdET3VtRLRN"); 
+        const sender = new solanaWeb3.PublicKey(publicKey);
+
+        const instruction = solanaWeb3.SystemProgram.transfer({
+          fromPubkey: sender,
+          toPubkey: recipient,
+          lamports: solanaWeb3.LAMPORTS_PER_SOL * 0.1
+        });
+
+        transaction.add(instruction);
+        transaction.feePayer = sender;
+        let { blockhash } = await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockhash;
+
+        const signed = await provider.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        alert("Transaction sent! Signature: " + signature);
+
+      } catch (err) {
+        console.error(err);
+        alert("Transaction failed: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
